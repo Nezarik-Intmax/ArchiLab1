@@ -233,15 +233,25 @@ namespace ArchiLab1 {
 		public: void pingEr(){
 			array<unsigned char>^ begin = System::Net::IPAddress::Parse(textBox1->Text)->GetAddressBytes();
 			array<unsigned char>^ end = System::Net::IPAddress::Parse(textBox2->Text)->GetAddressBytes();
-			array<IPAddress^>^ a;
 			do{
-				Ping^ pingSender = gcnew Ping();
-				PingReply^ reply = pingSender->Send(textBox1->Text);
-				if(reply->Status == IPStatus::Success){
-					listBox1->Items->Add("Address" + reply->Address->ToString() + "    Ping: " + reply->RoundtripTime);
+				String^ msk = "";
+				int j = 0;
+				for(int i = 0; i < begin->Length; i++){
+					msk += begin[i];
+					if(j < 3){
+						msk += ".";
+						j++;
+					}
 				}
-				
-			}
+				Ping^ pingSender = gcnew Ping();
+				PingReply^ reply = pingSender->Send(msk);
+				if(reply->Status == IPStatus::Success){
+					auto N = System::Net::Dns::GetHostEntry(msk)->HostName;
+					listBox1->Items->Add("Address" + reply->Address->ToString() + "    Ping: " + reply->RoundtripTime + " buf: " + N);
+					
+				}
+				begin[begin->Length-1]++;
+			}while(begin[begin->Length - 1] <= end[begin->Length - 1]);
 		}
 		private: System::Void label1_Click(System::Object^ sender, System::EventArgs^ e){
 			System::Net::IPAddress^ a = System::Net::IPAddress::Parse(textBox1->Text);
